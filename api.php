@@ -8,14 +8,16 @@ if(function_exists($_GET['function'])) {
 function get_trx(){
     global $connect;
     $quer = $connect->query("select * from transaction order by create_date desc");
-    $row = mysqli_fetch_array($quer);
-    $data = [];
+   while($row=mysqli_fetch_object($quer))
+    {
+       $data[] = $row;
+    }
     if($row)
     {
         $data = [
             'status'=>'00',
             'msg'=>'success',
-            'data'=>$row
+            'data'=>$data
         ];        
     }
     

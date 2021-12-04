@@ -209,39 +209,22 @@
     <div class="col-md-4">
         <div class="row">
             <h3>Balance: <?= number_format($total, 2, ',', '.') ?></h3>
-            <table class="blueTable" width="100%">
+            <table id="tblData" class="blueTable" width="100%">
                 <thead>
                     <th>#</th>
                     <th>Amount</th>
                     <th>Type</th>
                     <th>Date</th>
-                    <th>Time</th>
                 </thead>
                 <tbody>
-                    <?php 
-                        require_once "db.php";
-                        $no = 1;
-                        global $connect;
-                        $quer = $connect->query("select * from transaction order by create_date desc");
-                        while($row=mysqli_fetch_object($quer))
-                        {
-                            $type = $row->type == 'D' ? 'Debit':'Credit';
-                            echo "<tr>";
-                            echo "<td>".$no."</td>";
-                            echo "<td>".number_format($row->amount, 2, ',', '.')."</td>";
-                            echo "<td>".$type."</td>";
-                            echo "<td>".date("Y/m/d",strtotime($row->create_date))."</td>";
-                            echo "<td>".date("H:i:s",strtotime($row->create_date))."</td>";
-                            echo "</tr>";
-                            $no++;
-                        }
-                    ?>
+                   
                 </tbody>
             </table>
         </div>
     </div>
 
     <script type="text/javascript">
+        getTrx();
         function subFunction(){
             let data = {amount: document.getElementById("trx").value,  type: document.getElementById("type").value};
             fetch("trx.php", {
@@ -254,7 +237,33 @@
         }
 
         function getTrx(){
+            var html = '';
+            fetch("http://localhost/mcnplay/api.php?function=get_trx",{
+                method: "GET",
+            }).then(response => response.json())
+            .then(function(data){
+                var raw = data;
+                var no = 1;
+                var tipe = '';
+                raw.forEach(function(e){
+                    console.log(e);
+                    if(e.type == "D")
+                    {
+                        tipe = "Income";
+                    }else{
+                        tipe = "Expenses";
+                    }
+                    html += "<tr>";
+                    html += "<td>"+no+"</td>";
+                    html += "<td>"+parseInt(e.amount).toLocaleString("id-ID")+"</td>";
+                    html += "<td>"+tipe+"</td>";
+                    html += "<td>"+e.create_date+"</td>";
+                    html += "</tr>";
+                    no++;
+                })
+                document.querySelector('#tblData > tbody').innerHTML = html;
 
+            });
         }
         
         
